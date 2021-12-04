@@ -3,6 +3,34 @@
 #include "../../../modules/task_2/pinezhanin_e_bubble_sort_odd_even/bubble_sort_odd_even.h"
 #include <gtest-mpi-listener.hpp>
 
+TEST(Bubble_sort_odd_even_test, time_test) {
+    int rank;
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    const int size_vector = 100000;
+    std::vector<int> vec, ref_vec;
+    double startwtime_p, endwtime_p;
+    double startwtime_s, endwtime_s;
+
+    if (rank == 0) {
+        vec = getRandomVector(size_vector);
+        ref_vec = vec;
+    }
+
+    startwtime_p = MPI_Wtime();
+    vec = BubbleSortOddEvenParallel(vec);
+    endwtime_p = MPI_Wtime();
+
+    if (rank == 0) {
+        startwtime_s = MPI_Wtime();
+        ref_vec = BubbleSortOddEvenSequential(ref_vec);
+        endwtime_s = MPI_Wtime();
+        std::cout << "Count element: " << size_vector << std::endl;
+        std::cout << "Execution time s. " << endwtime_p - startwtime_p << " parallel" << std::endl;
+        std::cout << "Execution time s. " << endwtime_s - startwtime_s << " sequential" << std::endl;
+        ASSERT_EQ(ref_vec, vec);
+    }
+}
+
 TEST(Bubble_sort_odd_even_test, sort_1000_element) {
     int rank;
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
